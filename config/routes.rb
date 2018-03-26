@@ -54,4 +54,12 @@ Rails.application.routes.draw do
     # 設定 /admin 後台首頁
     root "tweets#index"
   end
+
+  # API 路由
+  namespace :api, defaults: {format: :json} do
+    namespace :v1 do
+      resources :tweets, only: [:index, :create, :show]
+    end
+  end
+
 end
