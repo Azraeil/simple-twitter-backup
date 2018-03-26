@@ -58,6 +58,10 @@ Rails.application.routes.draw do
   # API 路由
   namespace :api, defaults: {format: :json} do
     namespace :v1 do
+      # for API user login
+      post "/login" => "auth#login"
+      post "/logout" => "auth#logout"
+
       resources :tweets, only: [:index, :create, :show]
     end
   end
