@@ -31,4 +31,23 @@ class Api::V1::TweetsController < ApiController
       }
     end
   end
+
+  def create
+    @tweet = Tweet.new(tweet_params)
+    if @tweet.save
+      render json: {
+        message: "Tweet created successfully!",
+        result: @tweet
+      }
+    else
+      render json: {
+        errors: @tweet.errors
+      }
+    end
+  end
+
+  private
+  def tweet_params
+    params.permit(:description, :user_id)
+  end
 end
