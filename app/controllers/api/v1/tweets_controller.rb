@@ -1,4 +1,6 @@
 class Api::V1::TweetsController < ApiController
+  before_action :authenticate_user!
+  
   def index
     @tweets = Tweet.all
     # render json: {
