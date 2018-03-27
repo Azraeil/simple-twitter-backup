@@ -22,3 +22,7 @@
 
 .byebug_history
 /public/uploads/
+
+/config/facebook.yml
+*.key
+*.crt

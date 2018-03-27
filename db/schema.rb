@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180326141525) do
+ActiveRecord::Schema.define(version: 20180327021934) do
 
   create_table "followships", force: :cascade do |t|
     t.integer "user_id"
@@ -69,6 +69,8 @@ ActiveRecord::Schema.define(version: 20180326141525) do
     t.integer "tweets_count", default: 0
     t.integer "followships_count", default: 0
     t.string "authentication_token"
+    t.string "fb_uid"
+    t.string "fb_token"
     t.index ["authentication_token"], name: "index_users_on_authentication_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["name"], name: "index_users_on_name", unique: true
