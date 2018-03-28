@@ -11,7 +11,9 @@ class Admin::TweetsController < Admin::BaseController
     else
       flash[:warning] = "Tweet was failed to destroy."
     end
-    
-    redirect_back(fallback_location: admin_root_path)
+
+    # redirect_back(fallback_location: admin_root_path)
+    # 將指定刪除的 tweet id 用 JSON 格式回傳給前端
+    render :json => { :id => @tweet.id }
   end
 end

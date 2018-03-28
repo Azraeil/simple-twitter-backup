@@ -1,6 +1,6 @@
 <div class="container">
   <div class="row">
-    <div class="col-8">
+    <div class="col-8" id="tweet">
       <!-- 新增推文 -->
       <%= form_for @tweet do |f| %>
         <div class="form-group">
@@ -49,3 +49,26 @@
 
   </div>
 </div>
+
+<script>
+  // 找出所有帶有 .delete-tweet 的 HTML elements
+  // 並透過 jQuery 的 on 方法設定 click 事件
+
+  $('.delete-tweet').on('click', function(event) {
+    // 用 DOM 方法取得 id，這邊就會用到 event 了！
+    // 並用 console.log 確認是對的
+    var id = event.target.parentNode.parentNode.id;
+    console.log(id);
+
+    // 用 $.ajax 發送非同步 DELETE request
+    $.ajax({
+      url: 'admin/tweets/' + id,
+      method: 'DELETE',
+      dataType: 'json',
+      success: function(data) {
+        // 取出 tweet id
+        $('#' + data['id']).remove();
+      }
+    });
+  });
+</script>

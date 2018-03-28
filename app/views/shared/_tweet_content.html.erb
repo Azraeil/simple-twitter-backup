@@ -1,5 +1,5 @@
 <% tweets_object.each do |tweet| %>
-  <div class="row border tweet_content">
+  <div class="row border tweet_content" id="<%= tweet.id %>">
     <div class="col-2">
       <!-- <%= image_tag "https://picsum.photos/90/90/?random", class: "text-center" %> -->
 
@@ -25,7 +25,8 @@
 
       <!-- delete button -->
       <% if current_user.is_admin? %>
-        <%= link_to "Delete", admin_tweet_path(tweet.id), method: :delete, data: {disable_with: "waiting.."}, class: "btn btn-danger" %>
+        <!-- <%= link_to "Delete", admin_tweet_path(tweet.id), method: :delete, data: {disable_with: "waiting.."}, class: "btn btn-danger" %> -->
+        <span class="delete-tweet btn btn-danger">Delete</span>
       <% end %>
 
     </div>
