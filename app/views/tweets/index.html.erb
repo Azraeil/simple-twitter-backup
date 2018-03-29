@@ -2,7 +2,7 @@
   <div class="row">
     <div class="col-8" id="tweet">
       <!-- 新增推文 -->
-      <%= form_for @tweet do |f| %>
+      <!-- <%= form_for @tweet do |f| %>
         <div class="form-group">
           <%= f.text_area :description, placeholder: "What's on your mind?", class: "form-control" %>
         </div>
@@ -11,7 +11,17 @@
           <%= f.submit "Tweet", class: "btn btn-primary" %>
           <%= f.button "Clear", type: :reset, class: "btn btn-light" %>
         </div>
-      <% end %>
+      <% end %> -->
+      <!-- 新增推文(非同步) -->
+      <form class="">
+        <div class="form-group">
+          <input type="text_area" class="form-control" id="tweet-text"/>
+        </div>
+
+        <div class="form-group float-right">
+          <button id="create-tweet" class="btn btn-primary">Tweet</button>
+        </div>
+      </form>
 
       <div class="clearfix"></div>
 
@@ -53,7 +63,6 @@
 <script>
   // 找出所有帶有 .delete-tweet 的 HTML elements
   // 並透過 jQuery 的 on 方法設定 click 事件
-
   $('.delete-tweet').on('click', function(event) {
     // 用 DOM 方法取得 id，這邊就會用到 event 了！
     // 並用 console.log 確認是對的
@@ -71,4 +80,71 @@
       }
     });
   });
+
+  // 新增 Tweet via jQuery ajax
+  $('#create-tweet').on('click', function(event) {
+    event.preventDefault();
+    $.ajax({
+      url: 'tweets/',
+      method: 'POST',
+      data: {
+        tweet: {
+          // 這邊的欄位值要到 tweets_controller 確認正確
+          description: $('#tweet-text').val(),
+          // 比較麻煩的是 user_id ？ 先試試看
+          // 成功啦 YA
+        }
+      },
+      dataType: 'json',
+      success: function(data) {
+        console.log(data);
+
+        // 先產生一個把整個 tweet content 包住的 html element
+        var tweet = document.createElement('div');
+        console.log(tweet);
+        tweet.id = data['id'];
+
+        // 當 html 方法的括號沒有帶入資料時，即拿出裡面的網頁內容；當 html 方法的括號有帶入資料時，即將該資料取代原本的內容。
+        // 所以用 template 取代剛建立的 tweet
+        $(tweet).html( $('#tweet-template').html() );
+
+        $(tweet).find('.description').html(data['description']);
+        $(tweet).find('.create-date').html(data['createDate']);
+        $(tweet).find('.create-time').html(data['createTime']);
+        $(tweet).find('.user-name').html(data['userName']);
+        $(tweet).find('.avatar').attr('src', data['userAvatar']);
+
+        $('#tweet').append(tweet);
+      }
+    });
+  });
+
+</script>
+
+<script type="text/template" id="tweet-template">
+  <div class="row border tweet_content" id="">
+    <div class="col-2">
+      <!-- 大頭貼 -->
+      <img class="avatar" src="" >
+    </div>
+
+    <div class="col-10">
+      <!-- 使用者名稱 -->
+      <span class="user-name"></span>,
+      <!-- 推文建立日期，時間 -->
+      <span class="create-date"></span>,
+      <span class="create-time"></span>
+
+      <!-- 推文內容 -->
+      <p class="description"></p>
+
+      <!-- reply button -->
+      <span class="text-secondary reply-button">Reply(0)</span>
+
+      <!-- like button -->
+      <span class="text-secondary like-button">like(0)</span>
+
+    </div>
+
+  </div>
 </script>
