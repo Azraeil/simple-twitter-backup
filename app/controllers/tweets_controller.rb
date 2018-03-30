@@ -20,7 +20,21 @@ class TweetsController < ApplicationController
 
     if @tweet.save
       flash[:notice] = "Tweet was created successfully."
-      redirect_to tweets_path
+      # redirect_to tweets_path
+
+      # 回傳 JSON 資料給 jQuery ajax
+      render :json => {
+        :id => @tweet.id,
+        :description => @tweet.description,
+        :createDate => @tweet.created_at.strftime("%Y-%m-%d"),
+        :createTime => @tweet.created_at.strftime("%H:%M"),
+        :userName => current_user.name,
+        :userAvatar => current_user.avatar,
+        :userUrl => tweets_user_url(current_user),
+        :replyUrl => tweet_replies_url(@tweet.id),
+        :likeUrl => like_tweet_url(@tweet.id)
+      }
+
     else
       flash[:alert] = "Tweet was failed to create."
       redirect_to tweets_path
