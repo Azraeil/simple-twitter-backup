@@ -15,6 +15,11 @@ Rails.application.routes.draw do
       post :unlike
     end
 
+    # for infinite scroll of index
+    collection do
+      get :load
+    end
+
     # /tweets/:id 與 /tweets/:tweet_id 不知有無差異，:tweet_id 應爲其他資料表的外鍵
     # GET /tweets/:tweet_id/replies 可以在這頁回覆特定 tweet，並看見 tweet 主人的簡介
     # POST /tweets/:tweet_id/replies 將回覆內容寫入資料庫
