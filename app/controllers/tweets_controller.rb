@@ -3,12 +3,38 @@ class TweetsController < ApplicationController
 
   def index
     # 基於測試規格，必須給定變數名稱，請用此變數中存放關注人數 Top 10 的使用者資料
-    @users = User.all.order(followers_count: :desc).limit(10)
+    @users = User.all.order(followers_count: :desc).limit(2)
 
     # Tweets：排序依日期，最新的在前
-    @tweets = Tweet.all.order(created_at: :desc).limit(20)
+    @tweets = Tweet.all.order(created_at: :desc).limit(10)
 
     @tweet = Tweet.new
+  end
+
+  # 當卷軸到底時觸發 load
+  def load
+    if params[:current_tweet_id]
+      @tweets = Tweet.where( "id < ?", params[:current_tweet_id]).order("id DESC").limit(10)
+
+      render :json => {
+        # 用 map method 改寫每一筆 @tweet 資料爲 json 格式
+        data: @tweets.map do |tweet|
+        {
+          :id => tweet.id,
+          :description => tweet.description,
+          :createDate => tweet.created_at.strftime("%Y-%m-%d"),
+          :createTime => tweet.created_at.strftime("%H:%M"),
+          :userName => current_user.name,
+          :userAvatar => current_user.avatar,
+          :userUrl => tweets_user_url(current_user),
+          :replyUrl => tweet_replies_url(tweet.id),
+          :replyCount => tweet.replies_count,
+          :likeUrl => like_tweet_url(tweet.id),
+          :likeCount => tweet.likes_count
+        }
+        end
+      }
+    end
   end
 
   # 在首頁新增推文

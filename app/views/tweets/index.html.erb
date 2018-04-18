@@ -57,9 +57,10 @@
           </div>
         </div>
       <% end %>
-    </div>
+      </div>
     </div>
 
+    <h4 id="end" class="text-center"></h4>
   </div>
 </div>
 
@@ -126,6 +127,9 @@
     });
   });
 
+  // 記錄最後載入的 tweet id
+  var current_tweet_id = <%= @tweets.last.id %>
+
 </script>
 
 <script type="text/template" id="tweet-template">
@@ -154,4 +158,75 @@
     </div>
 
   </div>
+</script>
+
+<script>
+  // 記錄最後載入的 tweet id
+  var current_tweet_id = <%= @tweets.last.id %>
+
+  // 透過事件驅動發出非同步 GET 請求
+  // 設定無限捲軸的事件驅動
+  $(window).on('scroll', function(event) {
+    // 觸發條件：當瀏覽器視窗的高度 + 捲動條的上端 >= 整個網頁內容的高度時
+    // 表示卷軸已經捲到底了
+    // 這部分用 atom 的 minimap package 觀察就很好理解
+    var scrollHeight = window.innerHeight + window.scrollY;
+    if ( scrollHeight >= document.body.offsetHeight ) {
+      // 用 $.ajax 發送非同步請求
+      $.ajax({
+        // 並附帶最後一筆 current_tweet_id 參數
+        url: '/tweets/load?current_tweet_id=' + current_tweet_id,
+        method: 'GET',
+        dataType: 'json',
+        success: function(data) {
+          // 從 tweets#load 獲得要載入的 tweets
+          // 因爲網頁一捲到底就會觸發，所以有可能已經將所有的 tweets 都載入完畢，那這時候就要顯示 No more tweets
+          var tweets = data['data'];
+          console.log(tweets);
+          if ( tweets.length > 0 ) {
+            // 用 forEach 逐個讀出陣列的元素值
+            tweets.forEach(function(value, index) {
+              // 將每個 tweet 拼成 tweet HTML elements
+              // 我這邊直接複製 tweets#create as JSON 的程式碼
+
+              // 先產生一個把整個 tweet content 包住的 html element
+              var tweet = document.createElement('div');
+              tweet.id = tweets[index]['id'];
+              // console.log(tweet.id);
+
+              // 當 html 方法的括號沒有帶入資料時，即拿出裡面的網頁內容；當 html 方法的括號有帶入資料時，即將該資料取代原本的內容。
+              // 所以用 template 取代剛建立的 tweet
+              $(tweet).html( $('#tweet-template').html() );
+
+              $(tweet).find('.description').html(tweets[index]['description']);
+              $(tweet).find('.create-date').html(tweets[index]['createDate']);
+              $(tweet).find('.create-time').html(tweets[index]['createTime']);
+
+              $(tweet).find('.user-name').html(tweets[index]['userName']);
+              $(tweet).find('.user-name').attr('href', tweets[index]['userUrl']);
+
+              $(tweet).find('.avatar').attr('src', tweets[index]['userAvatar']);
+
+              $(tweet).find('.reply-button').attr('href', tweets[index]['replyUrl']);
+              $(tweet).find('.reply-button').html('reply(' + tweets[index]['replyCount'] + ')');
+
+              $(tweet).find('.like-button').attr('href', tweets[index]['likeUrl']);
+              $(tweet).find('.like-button').html('like(' + tweets[index]['likeCount'] + ')');
+
+              $('#tweet').append(tweet);
+              // console.log(tweet);
+
+              // 最後記得要記錄最後的 tweet_id
+              // 這個取值方式。。。先選是哪個 tweet 再把它的 id 值 取出來
+              current_tweet_id = tweets[index]['id'];
+            });
+          } else {
+            // No more tweets
+            $("#end").html("No more tweet.")
+          }
+
+        }
+      });
+    }
+  });
 </script>
