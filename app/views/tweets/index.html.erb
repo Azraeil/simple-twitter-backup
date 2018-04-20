@@ -1,6 +1,6 @@
 <div class="container">
   <div class="row">
-    <div class="col-8">
+    <div class="col-8" id="tweet-column">
       <!-- 新增推文 -->
       <!-- <%= form_for @tweet do |f| %>
         <div class="form-group">
@@ -64,6 +64,8 @@
   </div>
 </div>
 
+
+
 <script>
   // 找出所有帶有 .delete-tweet 的 HTML elements
   // 並透過 jQuery 的 on 方法設定 click 事件
@@ -104,11 +106,12 @@
         // 先產生一個把整個 tweet content 包住的 html element
         var tweet = document.createElement('div');
         console.log(tweet);
-        tweet.id = data['id'];
 
         // 當 html 方法的括號沒有帶入資料時，即拿出裡面的網頁內容；當 html 方法的括號有帶入資料時，即將該資料取代原本的內容。
         // 所以用 template 取代剛建立的 tweet
         $(tweet).html( $('#tweet-template').html() );
+
+        $(tweet).find('.tweet_content').attr('id', data['id']);
 
         $(tweet).find('.description').html(data['description']);
         $(tweet).find('.create-date').html(data['createDate']);
@@ -120,7 +123,7 @@
         $(tweet).find('.avatar').attr('src', data['userAvatar']);
 
         $(tweet).find('.reply-button').attr('href', data['replyUrl']);
-        $(tweet).find('.like-button').attr('href', data['likeUrl']);
+        $(tweet).find('.like-button').attr('title', data['likeUrl']);
 
         $('#tweet').prepend(tweet);
       }
@@ -153,13 +156,15 @@
       <a class="reply-button">Reply(0)</a>
 
       <!-- like button -->
-      <a class="text-secondary like-button">like(0)</a>
+      <!-- <a class="text-secondary like-button" data-method="post">like(0)</a> -->
+      <span class="text-secondary like-button btn btn-link" data-method="post">like(0)</span>
 
     </div>
 
   </div>
 </script>
 
+<!-- AJAX 無限卷軸 -->
 <script>
   // 記錄最後載入的 tweet id
   var current_tweet_id = <%= @tweets.last.id %>
@@ -191,12 +196,14 @@
 
               // 先產生一個把整個 tweet content 包住的 html element
               var tweet = document.createElement('div');
-              tweet.id = tweets[index]['id'];
+              // tweet.id = tweets[index]['id'];
               // console.log(tweet.id);
 
               // 當 html 方法的括號沒有帶入資料時，即拿出裡面的網頁內容；當 html 方法的括號有帶入資料時，即將該資料取代原本的內容。
               // 所以用 template 取代剛建立的 tweet
               $(tweet).html( $('#tweet-template').html() );
+
+              $(tweet).find('.tweet_content').attr('id', tweets[index]['id']);
 
               $(tweet).find('.description').html(tweets[index]['description']);
               $(tweet).find('.create-date').html(tweets[index]['createDate']);
@@ -210,7 +217,8 @@
               $(tweet).find('.reply-button').attr('href', tweets[index]['replyUrl']);
               $(tweet).find('.reply-button').html('Reply(' + tweets[index]['replyCount'] + ')');
 
-              $(tweet).find('.like-button').attr('href', tweets[index]['likeUrl']);
+              $(tweet).find('.like-button').attr('title', tweets[index]['likeUrl']);
+
               if (tweets[index]['likeStatus']) {
                 $(tweet).find('.like-button').html('unlike(' + tweets[index]['likeCount'] + ')');
               } else {
@@ -232,5 +240,38 @@
         }
       });
     }
+  });
+
+  //  AJAX like/unlike 按鈕
+  // 找出所有帶有 .like-button 的 HTML elements
+  // 並透過 jQuery 的 on 方法設定 click 事件
+  // 因爲要考慮到有些按鈕是 卷軸觸底後才用 $.ajax 生出來的，所以綁定觸發事件的方式要從上層綁起
+  $('#tweet-column').on('click', '.like-button', function(event) {
+    // 用 DOM 方法取得 id，這邊就會用到 event 了！
+    // 找到 tweet 本體
+    var tweet = event.target.parentNode.parentNode
+    // 找到該 tweet.id
+    var id = event.target.parentNode.parentNode.id;
+    console.log(id);
+
+    var requestUrl = event.target.title;
+    console.log(requestUrl);
+
+    $.ajax({
+      url: requestUrl,
+      method: 'POST',
+      dataType: 'json',
+      success: function(data) {
+        console.log(data);
+        // 更新 like/unlike button 還有 count
+        $(tweet).find('.like-button').attr('title', data['likeUrl']);
+
+        if (data['likeStatus']) {
+          $(tweet).find('.like-button').html('unlike(' + data['likeCount'] + ')');
+        } else {
+          $(tweet).find('.like-button').html('like(' + data['likeCount'] + ')');
+        }
+      }
+    });
   });
 </script>

@@ -82,7 +82,14 @@ class TweetsController < ApplicationController
 
     @like = Like.create!(user_id: current_user.id, tweet_id: @tweet.id)
 
-    redirect_back(fallback_location: tweets_path)
+    # redirect_back(fallback_location: tweets_path)
+    # 透過 AJAX 更新
+    render :json => {
+      # 記得這邊要用 .count 才會算到最新的 
+      :likeCount => @tweet.likes.count,
+      :likeUrl => unlike_tweet_url(@tweet.id),
+      :likeStatus => true
+    }
   end
 
   # 刪除推文喜好記錄 tweets#unlike
@@ -92,7 +99,15 @@ class TweetsController < ApplicationController
     like = Like.where(user_id: current_user.id, tweet_id: @tweet.id)
 
     like.destroy_all
-    redirect_back(fallback_location: tweets_path)
+    # redirect_back(fallback_location: tweets_path)
+    # 透過 AJAX 更新
+
+    render :json => {
+      # 記得這邊要用 .count 才會算到最新的
+      :likeCount => @tweet.likes.count,
+      :likeUrl => like_tweet_url(@tweet.id),
+      :likeStatus => false
+    }
   end
 
   private
