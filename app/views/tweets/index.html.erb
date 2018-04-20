@@ -69,7 +69,7 @@
 <script>
   // 找出所有帶有 .delete-tweet 的 HTML elements
   // 並透過 jQuery 的 on 方法設定 click 事件
-  $('.delete-tweet').on('click', function(event) {
+  $('#tweet-column').on('click', '.delete-tweet', function(event) {
     // 用 DOM 方法取得 id，這邊就會用到 event 了！
     // 並用 console.log 確認是對的
     var id = event.target.parentNode.parentNode.id;
@@ -158,6 +158,11 @@
       <!-- like button -->
       <!-- <a class="text-secondary like-button" data-method="post">like(0)</a> -->
       <span class="text-secondary like-button btn btn-link" data-method="post">like(0)</span>
+
+      <!-- delete button -->
+      <% if current_user.is_admin? %>
+        <span class="delete-tweet btn btn-danger">Delete</span>
+      <% end %>
 
     </div>
 
