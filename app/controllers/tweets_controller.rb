@@ -19,6 +19,14 @@ class TweetsController < ApplicationController
       render :json => {
         # 用 map method 改寫每一筆 @tweet 資料爲 json 格式
         data: @tweets.map do |tweet|
+          # 根據目前使用者是否對該推文有 like 關係
+          if current_user.is_liked?(tweet)
+            like_url = unlike_tweet_url(tweet.id)
+            like_status = true
+          else
+            like_url = like_tweet_url(tweet.id)
+            like_status = false
+          end
         {
           :id => tweet.id,
           :description => tweet.description,
@@ -29,8 +37,9 @@ class TweetsController < ApplicationController
           :userUrl => tweets_user_url(current_user),
           :replyUrl => tweet_replies_url(tweet.id),
           :replyCount => tweet.replies_count,
-          :likeUrl => like_tweet_url(tweet.id),
-          :likeCount => tweet.likes_count
+          :likeUrl => like_url,
+          :likeCount => tweet.likes_count,
+          :likeStatus => like_status
         }
         end
       }

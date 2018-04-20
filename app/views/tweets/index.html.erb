@@ -208,10 +208,14 @@
               $(tweet).find('.avatar').attr('src', tweets[index]['userAvatar']);
 
               $(tweet).find('.reply-button').attr('href', tweets[index]['replyUrl']);
-              $(tweet).find('.reply-button').html('reply(' + tweets[index]['replyCount'] + ')');
+              $(tweet).find('.reply-button').html('Reply(' + tweets[index]['replyCount'] + ')');
 
               $(tweet).find('.like-button').attr('href', tweets[index]['likeUrl']);
-              $(tweet).find('.like-button').html('like(' + tweets[index]['likeCount'] + ')');
+              if (tweets[index]['likeStatus']) {
+                $(tweet).find('.like-button').html('unlike(' + tweets[index]['likeCount'] + ')');
+              } else {
+                $(tweet).find('.like-button').html('like(' + tweets[index]['likeCount'] + ')');
+              }
 
               $('#tweet').append(tweet);
               // console.log(tweet);
